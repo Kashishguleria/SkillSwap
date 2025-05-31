@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillSwap - Connect & Learn</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+
+    .navbar {
+      background-color: #1a73e8;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+    }
+
+    .navbar .logo {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .toggle-container {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .toggle-container a {
+      color: #1a73e8;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #1a73e8;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #0f5bd4;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #e9ecef;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">SkillSwap</div>
+    <div class="nav-links">
+      <a href="#login-section">Login</a>
+      <a href="#signup-section">Signup</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card" id="login-section">
+      <h2>Welcome to SkillSwap</h2>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" required />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" required />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+
+      <div class="toggle-container">
+        Don't have an account? <a onclick="toggleForms(true)">Sign up here</a>
+      </div>
+    </div>
+
+    <div class="card" id="signup-section" style="display: none; margin-top: 30px;">
+      <h2>Create Your Account</h2>
+
+      <form id="signupForm">
+        <div class="form-group">
+          <label for="signup-name">Full Name</label>
+          <input type="text" id="signup-name" required />
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" required />
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" required />
+        </div>
+        <button type="submit">Sign Up</button>
+      </form>
+
+      <div class="toggle-container">
+        Already have an account? <a onclick="toggleForms(false)">Login here</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 SkillSwap. All rights reserved.
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD8gLpxHZ-WVAVHI-PR9Nk-RmdpDqYpEUQ",
+      authDomain: "skillswap-b3510.firebaseapp.com",
+      projectId: "skillswap-b3510",
+      storageBucket: "skillswap-b3510.appspot.com",
+      messagingSenderId: "16259338790",
+      appId: "1:16259338790:web:a682226efa9f0949f34ce7",
+      measurementId: "G-CL4S1ZNFP0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Login
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          alert("Login successful!");
+          window.location.href = "skills.html"; // updated
+        })
+        .catch((error) => {
+          alert("Login failed: " + error.message);
+        });
+    });
+
+    // Signup
+    document.getElementById("signupForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("signup-name").value;
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          alert("Signup successful!");
+          window.location.href = "skills.html"; // updated
+        })
+        .catch((error) => {
+          alert("Signup failed: " + error.message);
+        });
+    });
+
+    // Form toggle
+    window.toggleForms = function(showSignup) {
+      document.getElementById("login-section").style.display = showSignup ? "none" : "block";
+      document.getElementById("signup-section").style.display = showSignup ? "block" : "none";
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skill Profile</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+
+    .navbar {
+      background-color: #1a73e8;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+    }
+
+    .navbar .logo {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    button, .chat-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #1a73e8;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    button:hover, .chat-btn:hover {
+      background-color: #0f5bd4;
+    }
+
+    .match-list {
+      margin-top: 40px;
+    }
+
+    .match-item {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px 20px;
+      margin-bottom: 12px;
+    }
+
+    .chat-btn {
+      margin-top: 10px;
+      display: inline-block;
+      width: auto;
+      padding: 8px 14px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">SkillSwap</div>
+    <div><a href="index.html" style="color:white;text-decoration:none;font-weight:500;">Logout</a></div>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h2>Your Skill Profile</h2>
+      <form id="skillsForm">
+        <div class="form-group">
+          <label for="teach-skills">Skills You Can Teach</label>
+          <input type="text" id="teach-skills" required placeholder="e.g., Python, Guitar, Cooking">
+        </div>
+        <div class="form-group">
+          <label for="learn-skills">Skills You Want to Learn</label>
+          <input type="text" id="learn-skills" required placeholder="e.g., UI Design, French, Photography">
+        </div>
+        <button type="submit">Save Profile</button>
+      </form>
+    </div>
+
+    <div class="match-list" id="match-list">
+      <h2 style="text-align:center; margin: 40px 0 20px;">Your Skill Matches</h2>
+      <!-- Matches will be displayed here -->
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD8gLpxHZ-WVAVHI-PR9Nk-RmdpDqYpEUQ",
+      authDomain: "skillswap-b3510.firebaseapp.com",
+      projectId: "skillswap-b3510",
+      storageBucket: "skillswap-b3510.appspot.com",
+      messagingSenderId: "16259338790",
+      appId: "1:16259338790:web:a682226efa9f0949f34ce7",
+      measurementId: "G-CL4S1ZNFP0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        loadMatches();
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    document.getElementById("skillsForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const teach = document.getElementById("teach-skills").value.toLowerCase().split(",").map(s => s.trim());
+      const learn = document.getElementById("learn-skills").value.toLowerCase().split(",").map(s => s.trim());
+
+      await setDoc(doc(db, "users", currentUser.uid), {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        teach,
+        learn
+      });
+
+      alert("Profile saved successfully!");
+      loadMatches();
+    });
+
+    async function loadMatches() {
+      const matchContainer = document.getElementById("match-list");
+      matchContainer.innerHTML = "<h2 style='text-align:center; margin: 40px 0 20px;'>Your Skill Matches</h2>";
+
+      const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
+      const userData = currentUserDoc.data();
+
+      const allUsers = await getDocs(collection(db, "users"));
+
+      allUsers.forEach(docSnap => {
+        const otherUser = docSnap.data();
+        if (otherUser.uid !== currentUser.uid) {
+          const matches = otherUser.teach?.filter(skill => userData.learn.includes(skill)) || [];
+          const reverseMatches = otherUser.learn?.filter(skill => userData.teach.includes(skill)) || [];
+
+          if (matches.length || reverseMatches.length) {
+            const div = document.createElement("div");
+            div.className = "match-item";
+            div.innerHTML = `
+              <strong>${otherUser.email}</strong><br>
+              You can learn: ${matches.join(", ") || "None"}<br>
+              You can teach: ${reverseMatches.join(", ") || "None"}<br>
+              <a class="chat-btn" href="chat.html?uid=${otherUser.uid}&email=${encodeURIComponent(otherUser.email)}">Chat</a>
+            `;
+            matchContainer.appendChild(div);
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
