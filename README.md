@@ -4,10 +4,10 @@ SkillSwap is a peer-to-peer skill exchange platform where users can offer skills
 It includes user authentication, profile setup, real-time skill matching, and chat features using Firebase.
 
 ## Features
-- Firebase Auth Login/Signup 🔐
-- Skill selection and matching 🔍
-- Real-time chat with other users 💬
-- Responsive UI for mobile and desktop 📱💻
+- Firebase Auth Login/Signup 
+- Skill selection and matching 
+- Real-time chat with other users 
+- Responsive UI for mobile and desktop 
 
 ## Screenshots
 *Coming soon – feel free to contribute UI suggestions!*
